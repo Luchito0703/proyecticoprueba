@@ -1,28 +1,27 @@
-name: CI/CD FastAPI
+name: CI/CD y despliegue en EC2
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
-  build-and-test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout código
+    - name: Checkout del repositorio
       uses: actions/checkout@v3
 
-    - name: Configurar Python
-      uses: actions/setup-python@v4
+    - name: Desplegar en EC2 vía SSH
+      uses: appleboy/ssh-action@master
       with:
-        python-version: '3.11'
-
-    - name: Instalar dependencias
-      run: |
-        pip install -r requirements.txt
-
-    - name: Ejecutar pruebas (placeholder)
-      run: echo "No hay pruebas aún"
-
-    - name: Construir imagen Docker
-      run: docker build -t fastapi-store .
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # Si no existe el proyecto, clonarlo. Si ya existe, solo hacer pull
+          cd fastapi-devops || git clone https://github.com/Luchito0703/proyecticoprueba.git fastapi-devops
+          cd fastapi-devops
+          git pull origin main
+          docker-compose down
+          docker-compose up -d --build
