@@ -23,7 +23,7 @@ jobs:
 
     - name: Ejecutar pruebas (placeholder)
       run: |
-        echo "No hay pruebas aún, pero aquí iría 'pytest' si las agregas."
+        echo "No hay pruebas aún, pero aquí iría 'pytest tests/' si las agregas."
 
     - name: Construir imagen Docker
       run: docker build -t fastapi-app .
@@ -37,19 +37,20 @@ jobs:
         script: |
           cd ~
 
-          if [ ! -d "fastapi-devops" ]; then
-              git clone https://github.com/Luchito0703/proyecticoprueba.git fastapi-devops
+          # Clonar el repositorio si no existe
+          if [ ! -d "proyecticoprueba" ]; then
+              git clone https://github.com/Luchito0703/proyecticoprueba.git
           fi
 
-          cd fastapi-devops
+          cd proyecticoprueba
           git pull origin main
 
+          # Verificar existencia de docker-compose.yml
           if [ ! -f "docker-compose.yml" ]; then
               echo "❌ docker-compose.yml no encontrado en $(pwd)"
               exit 1
           fi
 
+          # Reconstruir y levantar los contenedores
           docker-compose down
           docker-compose up -d --build
-
-          
