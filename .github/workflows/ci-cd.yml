@@ -1,27 +1,53 @@
-name: CI/CD y despliegue en EC2
+name: ⚙️ CI/CD + Deploy EC2
 
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout del repositorio
       uses: actions/checkout@v3
 
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Instalar dependencias
+      run: |
+        pip install -r requirements.txt
+
+    - name: Ejecutar pruebas (placeholder)
+      run: |
+        echo "No hay pruebas aún, pero aquí iría 'pytest' si las agregas."
+
+    - name: Construir imagen Docker
+      run: docker build -t fastapi-app .
+
     - name: Desplegar en EC2 vía SSH
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # Si no existe el proyecto, clonarlo. Si ya existe, solo hacer pull
-          cd fastapi-devops || git clone https://github.com/Luchito0703/proyecticoprueba.git fastapi-devops
+          cd ~
+
+          if [ ! -d "fastapi-devops" ]; then
+              git clone https://github.com/Luchito0703/proyecticoprueba.git fastapi-devops
+          fi
+
           cd fastapi-devops
           git pull origin main
+
+          if [ ! -f "docker-compose.yml" ]; then
+              echo "❌ docker-compose.yml no encontrado en $(pwd)"
+              exit 1
+          fi
+
           docker-compose down
           docker-compose up -d --build
