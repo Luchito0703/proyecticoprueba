@@ -1,4 +1,4 @@
-name: ⚙️ CI/CD + Deploy EC2
+name: ⚙️ CI/CD + Deploy en EC2 (Amazon Linux)
 
 on:
   push:
@@ -21,11 +21,11 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Ejecutar pruebas (placeholder)
+    - name: Ejecutar pruebas (si existieran)
       run: |
-        echo "No hay pruebas aún, pero aquí iría 'pytest tests/' si las agregas."
+        echo "No hay pruebas aún. Puedes agregar pytest aquí."
 
-    - name: Construir imagen Docker
+    - name: Construir imagen Docker local
       run: docker build -t fastapi-app .
 
     - name: Desplegar en EC2 vía SSH
@@ -35,22 +35,42 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          # Instalar git si no existe
+          if ! command -v git &> /dev/null; then
+            sudo yum install -y git
+          fi
+
+          # Instalar Docker si no está
+          if ! command -v docker &> /dev/null; then
+            sudo yum update -y
+            sudo yum install -y docker
+            sudo service docker start
+            sudo usermod -aG docker ec2-user
+          fi
+
+          # Instalar Docker Compose si no está
+          if ! command -v docker-compose &> /dev/null; then
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+
+          # Ir a home
           cd ~
 
-          # Clonar el repositorio si no existe
+          # Clonar si no existe
           if [ ! -d "proyecticoprueba" ]; then
-              git clone https://github.com/Luchito0703/proyecticoprueba.git
+            git clone https://github.com/Luchito0703/proyecticoprueba.git
           fi
 
           cd proyecticoprueba
           git pull origin main
 
-          # Verificar existencia de docker-compose.yml
+          # Verificar docker-compose.yml
           if [ ! -f "docker-compose.yml" ]; then
-              echo "❌ docker-compose.yml no encontrado en $(pwd)"
-              exit 1
+            echo "❌ docker-compose.yml no encontrado en $(pwd)"
+            exit 1
           fi
 
-          # Reconstruir y levantar los contenedores
+          # Ejecutar el stack
           docker-compose down
           docker-compose up -d --build
