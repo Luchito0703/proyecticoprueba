@@ -29,11 +29,11 @@ jobs:
       run: docker build -t fastapi-app .
 
     - name: Login a Nexus
-      run: echo "${{ secrets.NEXUS_PASSWORD }}" | docker login http://${{ secrets.EC2_HOST }}:8082 -u ${{ secrets.NEXUS_USER }} --password-stdin
+      run: echo "${{ secrets.NEXUS_PASSWORD }}" | docker login http://ec2-54-237-233-40.compute-1.amazonaws.com:8082 -u ${{ secrets.NEXUS_USER }} --password-stdin
     - name: Push imagen a Nexus
       run: |
-        docker tag fastapi-app ${{ secrets.EC2_HOST }}:8082/fastapi-docker/fastapi-app:latest
-        docker push ${{ secrets.EC2_HOST }}:8082/fastapi-docker/fastapi-app:latest
+        docker tag fastapi-app ec2-54-237-233-40.compute-1.amazonaws.com:8082/fastapi-docker/fastapi-app:latest
+        docker push ec2-54-237-233-40.compute-1.amazonaws.com:8082/fastapi-docker/fastapi-app:latest
 
     - name: Desplegar en EC2 vía SSH
       uses: appleboy/ssh-action@v1.0.0
