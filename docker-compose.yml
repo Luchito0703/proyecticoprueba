@@ -24,6 +24,20 @@ services:
     networks:
       - app-network
 
+    nexus:
+      image: sonatype/nexus3
+      container_name: nexus
+      ports:
+        - "8081:8081"  # Interfaz de administración web
+        - "8082:8082"  # Puerto para Docker Registry
+      volumes:
+        - nexus-data:/nexus-data
+
+volumes:
+  nexus-data:
+
+
+
 networks:
   app-network:
   
