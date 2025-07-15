@@ -11,7 +11,7 @@ services:
     networks:
       - app-network
 
-  #Monitoreo con Prometheus y Grafana
+  #Monitoreo con Prometheus, Grafana y creacion Nexus
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -39,7 +39,6 @@ services:
     container_name: nexus
     ports:
       - "8081:8081"  # Interfaz de administración web
-      - "8082:8082"  # Puerto para Docker Registry
     volumes:
       - nexus-data:/nexus-data
     networks:

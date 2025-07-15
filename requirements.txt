@@ -2,3 +2,6 @@ fastapi
 uvicorn
 pydantic
 prometheus_client
+#Librerias para las pruebas unitarias
+pytest
+httpx

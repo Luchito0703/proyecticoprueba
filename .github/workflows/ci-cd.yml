@@ -1,4 +1,4 @@
-name: ⚙️ CI/CD + Deploy en EC2 (Amazon Linux)
+name: CI/CD + Deploy en EC2 (Amazon Linux)
 
 on:
   push:
